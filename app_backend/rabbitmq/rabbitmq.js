@@ -27,10 +27,13 @@ class RabbitmqWrapper {
         return sending;
     }
 
-    async recvFromQueue() {
+    async recvFromQueue(type) {
         const message = await this.channel.get(this._queueName, {});
         if (message) {
             this.channel.ack(message);
+            if(type === 'json'){
+                return JSON.parse(message.content);
+            }
             return message.content.toString();
         }
         else {
@@ -48,9 +51,9 @@ class RabbitmqWrapper {
         await this.sendToQueue(value);
     }
 
-    async recvMessage() {
+    async recvMessage(type) {
         await this.setup();
-        return await this.recvFromQueue();
+        return await this.recvFromQueue(type);
     }
 }
 

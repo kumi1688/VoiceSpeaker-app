@@ -11,9 +11,12 @@ import axios from 'axios';
 
 export default {
   name: 'App',
+  created(){
+    this.getWeatherData();
+  },
   methods:{
     setState(value){
-        axios.get(`/api/${value}`).then(() => {
+        axios.get(`/api/lights/${value}`).then(() => {
           this.bulb_state = value;
         });
       },
@@ -24,6 +27,11 @@ export default {
     turnOff(){
         console.log('off');
         this.setState('off');
+    },
+    async getWeatherData(){
+        const weatherData = await axios.get(`/api/weather/general`);
+        console.log(weatherData);
+        this.weatherData = weatherData;
     }
   },
   components: {
@@ -32,7 +40,8 @@ export default {
 
   data(){
     return {
-      bulb_state : false
+      bulb_state : false,
+      weatherData : null
     }
   }
 };

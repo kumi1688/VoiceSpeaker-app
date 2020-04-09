@@ -1,4 +1,5 @@
 const RabbitmqWrapper = require('../rabbitmq/rabbitmq.js')
+const amqp = require('amqplib/callback_api');
 
 const changeBulbState = async (req, res) => {
     const value = req.params.value;
@@ -10,12 +11,11 @@ const changeBulbState = async (req, res) => {
     
     try {
         const url = 'amqp://ksh:1234@3.34.5.103';
-        const queueName = 'req/hue/light';
+        let queueName = 'req/hue/light';
         const rq = new RabbitmqWrapper(url, queueName);
         
         await rq.sendMessage(value);
-  
-        res.send(queueName);
+        res.sendStatus(200);
     } catch (e) {
         console.error(e);
     }
@@ -24,17 +24,17 @@ const changeBulbState = async (req, res) => {
 const getWeatherData = async (req, res) => {
     try{
         const url = 'amqp://ksh:1234@3.34.5.103';
-        const queueName = 'req/weather/Info/general';
-        const rq = new RabbitmqWrapper(url, queueName);
+        let queueName = 'req/weather/info/general';
+        let rq = new RabbitmqWrapper(url, queueName);
+        await rq.sendMessage('');
 
-        const result = await rq.sendMessage('');
-        console.log(result);
-        res.send(queueName);
+        queueName = 'res/weather/info/general';
+        rq = new RabbitmqWrapper(url, queueName);
+        const result = await rq.recvMessage('json');
+        res.sendStatus(200);
     }catch(e){
         console.log(e);
-        res.send('error');
     }
-    
 }
 
 module.exports = {
