@@ -1,5 +1,6 @@
 const RabbitmqWrapper = require('../rabbitmq/rabbitmq.js')
-const push_my_message = async (req, res) => {
+
+const changeBulbState = async (req, res) => {
     const value = req.params.value;
     console.log(value);
     
@@ -9,10 +10,10 @@ const push_my_message = async (req, res) => {
     
     try {
         const url = 'amqp://ksh:1234@3.34.5.103';
-        const queueName = 'hue/light';
+        const queueName = 'req/hue/light';
         const rq = new RabbitmqWrapper(url, queueName);
         
-        await rq.send_helloWorld(value);
+        await rq.sendMessage(value);
   
         res.send(queueName);
     } catch (e) {
@@ -20,6 +21,22 @@ const push_my_message = async (req, res) => {
     }
   };
 
+const getWeatherData = async (req, res) => {
+    try{
+        const url = 'amqp://ksh:1234@3.34.5.103';
+        const queueName = 'req/weather/Info/general';
+        const rq = new RabbitmqWrapper(url, queueName);
+
+        const result = await rq.sendMessage('');
+        console.log(result);
+        res.send(queueName);
+    }catch(e){
+        console.log(e);
+        res.send('error');
+    }
+    
+}
+
 module.exports = {
-    push_my_message
+    changeBulbState, getWeatherData
 }

@@ -42,13 +42,13 @@ class RabbitmqWrapper {
         return Buffer.from(JSON.stringify(doc));
     }
 
-    async send_helloWorld(value) {
+    async sendMessage(value) {
         await this.setup();
         await this.assertQueue();
         await this.sendToQueue(value);
     }
 
-    async recv_helloWorld() {
+    async recvMessage() {
         await this.setup();
         return await this.recvFromQueue();
     }
