@@ -6,4 +6,5 @@ router.get('/hue/change/:value', changeBulbState);
 router.get('/hue/state', getBulbState);
 router.get('/weather/general', getWeatherData);
 
+
 module.exports = router;

@@ -1,8 +1,10 @@
+const RabbitmqWrapper = require('./rabbitmq/rabbitmq.js');
 var createError = require('http-errors');
 var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+const amqp = require('amqplib/callback_api');
 
 var indexRouter = require('./routes/index');
 
@@ -32,4 +34,32 @@ app.use(function(err, req, res, next) {
   res.render('error');
 });
 
-module.exports = app;
+app.io = require('socket.io')();
+const socket = app.io.on('connection', function(){
+  console.log('웹 소켓 연결됨');
+});
+
+amqp.connect('amqp://ksh:1234@3.34.5.103', (error0, connection)=>{
+  if(error0){throw error0;}
+  connection.createChannel((error1, channel)=>{
+    if(error1) {throw error1;}
+
+    channel.assertQueue('res/hue/state', {
+      durable: false
+    });
+        
+    channel.consume('res/hue/state', async (msg)=>{
+      console.log('[x] Received %s', 'res/hue/state');
+      // console.log(JSON.parse(msg.content.toString()));
+      
+      socket.emit("bulbState", {
+        data: JSON.parse(msg.content.toString())
+      });
+    }, {noAck:true});
+  })
+});
+
+module.exports = {
+  ws: app.io,
+  app: app
+};
