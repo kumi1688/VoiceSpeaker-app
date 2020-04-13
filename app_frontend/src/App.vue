@@ -1,15 +1,48 @@
 <template>
-  <v-app>
-    <h2>현재 상태 : {{bulbState}}</h2>
-    <button @click='turnOn'>켜기</button>
-    <button @click='turnOff'>끄기</button>
-    <hr>
-    <!-- <h3>데이터 : {{weatherData.data}}</h3> -->
+  <v-app id="inspire">
+
+    <v-app-bar
+      app
+      color="indigo"
+      dark
+    >
+      <v-app-bar-nav-icon @click.stop="drawer = !drawer" />
+      <v-toolbar-title>기기 조절</v-toolbar-title>
+    </v-app-bar>
+
+    <v-content>
+      <v-container
+        class="fill-height"
+        fluid
+      >
+        <v-row
+          align="center"
+          justify="center"
+        >
+          <v-col class="text-center">
+                <h2>전구 현재 상태 : {{bulbState}}</h2>
+                <v-btn small color="primary" @click='turnOn'>켜기</v-btn>
+                <v-btn small color="error" @click='turnOff'>끄기</v-btn>
+          </v-col>
+          <v-col class="text-center">
+            <WeatherContainer/>            
+          </v-col>
+        </v-row>
+        <v-row
+          align="center"
+          justify="center"
+        >
+          
+        </v-row>
+      </v-container>
+    </v-content>
     
   </v-app>
 </template>
 
+
 <script>
+import WeatherContainer from './components/WeatherContainer';
 import axios from 'axios';
 import io from 'socket.io-client';
 const socket = io('http://15.164.96.156:3000')
@@ -17,7 +50,6 @@ const socket = io('http://15.164.96.156:3000')
 export default {
   name: 'App',
   created(){
-    this.getWeatherData();
     this.getBulbState();
     this.connectWebSocket();
     this.updateBulbState();
@@ -36,16 +68,12 @@ export default {
         console.log('off');
         this.setState('off');
     },
-    async getWeatherData(){
-        const weatherData = await axios.get(`/api/weather/general`);
-        console.log(weatherData);
-        this.weatherData = weatherData;
-    },
+    
     async getBulbState(){
       const bulbState = await axios.get('/api/hue/state');
       console.log(bulbState);
       this.bulbState = bulbState.data.on ? '켜짐': '꺼짐';
-    },
+    },  
     connectWebSocket(){
       socket.on('connection', () => {
         console.log('웹소켓 연결됨');
@@ -59,12 +87,12 @@ export default {
     }
   },
   components: {
-    
+    WeatherContainer
   },
   data(){
     return {
+      drawer: null,
       bulbState : '꺼짐',
-      weatherData : null,
       
     }
   }
